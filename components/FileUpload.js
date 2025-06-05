@@ -4,14 +4,44 @@ import { useState } from 'react'
 
 export default function FileUpload({ onFileSelect }) {
   const [selectedFile, setSelectedFile] = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadResult, setUploadResult] = useState(null)
 
   const handleFileChange = (event) => {
     const file = event.target.files[0]
     setSelectedFile(file)
+    setUploadResult(null) // Clear previous results
     
     // Pass the file to parent component if callback provided
     if (onFileSelect) {
       onFileSelect(file)
+    }
+  }
+
+  const handleUpload = async () => {
+    if (!selectedFile) return
+
+    setUploading(true)
+    setUploadResult(null)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await response.json()
+      setUploadResult(result)
+    } catch (error) {
+      setUploadResult({
+        status: 'error',
+        message: 'Upload failed: ' + error.message
+      })
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -37,6 +67,28 @@ export default function FileUpload({ onFileSelect }) {
             </p>
             <p className="text-xs text-green-600 mt-1">
               Size: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+            </p>
+            
+            <button
+              onClick={handleUpload}
+              disabled={uploading}
+              className="mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {uploading ? 'Uploading...' : 'Upload & Process PDF'}
+            </button>
+          </div>
+        )}
+
+        {uploadResult && (
+          <div className={`mt-4 p-3 rounded ${
+            uploadResult.status === 'success' 
+              ? 'bg-green-50 border border-green-200' 
+              : 'bg-red-50 border border-red-200'
+          }`}>
+            <p className={`text-sm ${
+              uploadResult.status === 'success' ? 'text-green-700' : 'text-red-700'
+            }`}>
+              {uploadResult.message}
             </p>
           </div>
         )}
