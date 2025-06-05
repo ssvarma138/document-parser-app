@@ -14,11 +14,6 @@ Upload a PDF purchase order → extracts key information like PO number, vendor,
 - **PDF Processing**: pdf-parse-fork
 - **Deployment**: Vercel-ready
 
-## Screenshots
-
-![Upload Interface](screenshot-upload.png)
-![Results Display](screenshot-results.png)
-
 ## Setup
 
 1. **Clone the repo**
