@@ -18,7 +18,7 @@ Upload a PDF purchase order → extracts key information like PO number, vendor,
 
 1. **Clone the repo**
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/ssvarma138/document-parser-app.git
    cd doc-parser-app
    npm install
    ```
