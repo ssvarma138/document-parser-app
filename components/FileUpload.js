@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-export default function FileUpload({ onFileSelect }) {
+export default function FileUpload({ onFileSelect, onUploadComplete }) {
   const [selectedFile, setSelectedFile] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [uploadResult, setUploadResult] = useState(null)
@@ -35,11 +35,22 @@ export default function FileUpload({ onFileSelect }) {
 
       const result = await response.json()
       setUploadResult(result)
+      
+      // Pass the complete result back to parent component
+      if (onUploadComplete) {
+        onUploadComplete(result)
+      }
     } catch (error) {
-      setUploadResult({
+      const errorResult = {
         status: 'error',
         message: 'Upload failed: ' + error.message
-      })
+      }
+      setUploadResult(errorResult)
+      
+      // Pass error result to parent too
+      if (onUploadComplete) {
+        onUploadComplete(errorResult)
+      }
     } finally {
       setUploading(false)
     }
@@ -47,7 +58,7 @@ export default function FileUpload({ onFileSelect }) {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-white shadow-lg">
         <input
           type="file"
           accept=".pdf"
@@ -74,7 +85,7 @@ export default function FileUpload({ onFileSelect }) {
               disabled={uploading}
               className="mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {uploading ? 'Uploading...' : 'Upload & Process PDF'}
+              {uploading ? 'Processing...' : 'Upload & Process PDF'}
             </button>
           </div>
         )}
@@ -90,6 +101,11 @@ export default function FileUpload({ onFileSelect }) {
             }`}>
               {uploadResult.message}
             </p>
+            {uploadResult.status === 'success' && (
+              <p className="text-xs text-green-600 mt-1">
+                ✓ Data saved to database. See results below.
+              </p>
+            )}
           </div>
         )}
       </div>
