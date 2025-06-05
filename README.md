@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Document Parser App
 
-## Getting Started
+A Next.js app that extracts structured data from PDF purchase orders and stores it in Supabase.
 
-First, run the development server:
+## What it does
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Upload a PDF purchase order → extracts key information like PO number, vendor, items, total → saves to database → displays results in a clean table.
+
+## Tech Stack
+
+- **Frontend**: Next.js 15 (App Router), React, Tailwind CSS
+- **Backend**: Next.js API routes
+- **Database**: Supabase (PostgreSQL)
+- **PDF Processing**: pdf-parse-fork
+- **Deployment**: Vercel-ready
+
+## Screenshots
+
+![Upload Interface](screenshot-upload.png)
+![Results Display](screenshot-results.png)
+
+## Setup
+
+1. **Clone the repo**
+   ```bash
+   git clone <your-repo-url>
+   cd doc-parser-app
+   npm install
+   ```
+
+2. **Set up Supabase**
+   - Create a new project at [supabase.com](https://supabase.com)
+   - Run the SQL in `supabase-setup-simple.sql` to create the table
+   - Get your project URL and anon key
+
+3. **Environment variables**
+   ```bash
+   # .env.local
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **Run locally**
+   ```bash
+   npm run dev
+   ```
+
+## How it works
+
+1. **Upload**: Select a PDF file through the file input
+2. **Parse**: Extracts text using pdf-parse, then uses regex patterns to find PO data
+3. **Store**: Saves extracted data to Supabase database
+4. **Display**: Shows results in organized cards and tables
+
+## Database Schema
+
+```sql
+purchase_orders (
+  id UUID PRIMARY KEY,
+  po_number VARCHAR(100),
+  vendor_name VARCHAR(255), 
+  order_date DATE,
+  items JSONB,
+  total DECIMAL(10,2),
+  parsing_error TEXT,
+  original_filename VARCHAR(255),
+  created_at TIMESTAMP
+)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Known Issues
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- PDF parsing works best with standard purchase order formats
+- Complex/scanned PDFs may not parse correctly
+- Date parsing is basic and may miss some formats
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Future Improvements
 
-## Learn More
+- Better PDF parsing with OCR for scanned documents
+- More robust field extraction patterns
+- File upload to cloud storage
+- User authentication
 
-To learn more about Next.js, take a look at the following resources:
+## Development Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Built as a learning project to practice:
+- Next.js App Router
+- Supabase integration  
+- PDF processing in Node.js
+- TypeScript with React
+- File upload handling
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Feel free to open issues or submit PRs if you find bugs or want to improve the parsing logic.
