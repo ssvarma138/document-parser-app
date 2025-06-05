@@ -4,17 +4,39 @@ import { useState } from 'react'
 import FileUpload from '../../components/FileUpload'
 import ResultsTable from '../../components/ResultsTable'
 
-export default function Home() {
-  const [selectedFile, setSelectedFile] = useState(null)
-  const [uploadResult, setUploadResult] = useState(null)
+interface UploadResult {
+  message: string
+  extractedData?: {
+    po_number: string | null
+    vendor_name: string | null
+    order_date: string | null
+    items: Array<{
+      quantity: number
+      description: string
+      price: number
+    }>
+    total: number | null
+    parsing_error: string | null
+  }
+  savedRecord?: {
+    id: string
+    original_filename: string
+    created_at: string
+  }
+  error?: string
+}
 
-  const handleFileSelect = (file) => {
+export default function Home() {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [uploadResult, setUploadResult] = useState<UploadResult | null>(null)
+
+  const handleFileSelect = (file: File | null) => {
     setSelectedFile(file)
     // Clear previous results when new file is selected
     setUploadResult(null)
   }
 
-  const handleUploadComplete = (result) => {
+  const handleUploadComplete = (result: UploadResult) => {
     setUploadResult(result)
   }
 
@@ -25,11 +47,11 @@ export default function Home() {
           Document Parser App
         </h1>
         <p className="text-center text-gray-600 mb-8">
-          Upload PDF Purchase Orders to extract structured information
+          Upload a PDF Purchase Order to extract and display structured data
         </p>
         
         <FileUpload 
-          onFileSelect={handleFileSelect} 
+          onFileSelect={handleFileSelect}
           onUploadComplete={handleUploadComplete}
         />
         
@@ -41,7 +63,7 @@ export default function Home() {
         )}
 
         {/* Display results table when upload is successful */}
-        {uploadResult && uploadResult.status === 'success' && (
+        {uploadResult && (
           <ResultsTable data={uploadResult} />
         )}
       </div>
